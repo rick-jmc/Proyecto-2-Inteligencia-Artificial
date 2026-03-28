@@ -1,0 +1,106 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+\title{\textbf{Proyecto \#2: Búsqueda y Heurísticas \\ Maze Solver}}
+\author{Ricardo Josué Morales Contreras, 22289 }
+\date{27 de marzo de 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción}
+El objetivo fundamental de este proyecto consistió en implementar y comparar distintos algoritmos de búsqueda, tanto informada (Greedy, $A^*$) como no informada (BFS, DFS), para la resolución de laberintos. El análisis se centra en evaluar la eficiencia de cada algoritmo mediante tres métricas principales: la longitud de la solución encontrada, la cantidad de nodos explorados y el tiempo de ejecución computacional.
+
+\section{Resultados Obtenidos}
+Durante la evaluación en vivo, se resolvieron distintos laberintos de dimensiones $128 \times 128$. A continuación, se presenta un resumen de las métricas extraídas para los escenarios principales.
+
+\subsection{Caso de Prueba: Laberinto 1}
+\begin{table}[h]
+\centering
+\begin{tabular}{llccc}
+\toprule
+\textbf{Algoritmo} & \textbf{Heurística} & \textbf{Nodos} & \textbf{Largo Solución} & \textbf{Tiempo (s)} \\
+\midrule
+BFS & N/A & 4759 & 652 & 0.030416 \\
+DFS & N/A & 1428 & 1386 & 0.017927  \\
+Greedy & Manhattan & 2214 & 656 & 0.012860  \\
+Greedy & Euclidiana & 2216 & 672 & 0.013362 \\
+$A^*$ & Manhattan & 3746 & 652 & 0.027369  \\
+$A^*$ & Euclidiana & 3859 & 652 & 0.027606  \\
+\bottomrule
+\end{tabular}
+\caption{Resultados para Laberinto 1}
+\end{table}
+
+\subsection{Caso de Prueba: Laberinto 2}
+\begin{table}[h]
+\centering
+\begin{tabular}{llccc}
+\toprule
+\textbf{Algoritmo} & \textbf{Heurística} & \textbf{Nodos} & \textbf{Largo Solución} & \textbf{Tiempo (s)} \\
+\midrule
+BFS & N/A & 4117 & 316 & 0.018609 \\
+DFS & N/A & 2794 & 1398 & 0.028656  \\
+Greedy & Manhattan & 2498 & 378 & 0.010878  \\
+Greedy & Euclidiana & 2427 & 354 & 0.011036 \\
+$A^*$ & Manhattan & 3359 & 316 & 0.014963  \\
+$A^*$ & Euclidiana & 3828 & 316 & 0.018214  \\
+\bottomrule
+\end{tabular}
+\caption{Resultados para Laberinto 2}
+\end{table}
+
+\newpage 
+
+\subsection{Caso de Prueba: Laberinto 3}
+\begin{table}[h]
+\centering
+\begin{tabular}{llccc}
+\toprule
+\textbf{Algoritmo} & \textbf{Heurística} & \textbf{Nodos} & \textbf{Largo Solución} & \textbf{Tiempo (s)} \\
+\midrule
+BFS & N/A & 3815 & 184 & 0.014683  \\
+DFS & N/A & 2624 & 1160 & 0.023434  \\
+Greedy & Manhattan & 1340 & 188 & 0.005165  \\
+Greedy & Euclidiana & 610 & 188 & 0.002260 \\
+$A^*$ & Manhattan & 2050 & 184 & 0.008657  \\
+$A^*$ & Euclidiana & 2479 & 184 & 0.011468  \\
+\bottomrule
+\end{tabular}
+\caption{Resultados para Laberinto 3}
+\end{table}
+
+\section{Discusión y Análisis}
+
+\subsection{Desafíos de implementación}
+El principal desafío técnico residió en la gestión eficiente de la ``frontera'' o \textit{fringe} para los algoritmos. Para BFS y DFS, fue crucial evitar ciclos infinitos implementando adecuadamente la estructura de nodos visitados. En el caso de Greedy y $A^*$, el reto fue adaptar una cola de prioridad (\texttt{heapq}) que permitiera actualizar eficientemente los costos acumulados $g(n)$ y calcular los valores heurísticos $h(n)$ (Manhattan y Euclidiana) en cada expansión de nodo, manteniendo la complejidad computacional acotada. 
+
+\subsection{Selección del mejor algoritmo por caso}
+La elección del ``mejor'' algoritmo depende estrictamente del objetivo del problema:
+\begin{itemize}
+    \item \textbf{Eficiencia de tiempo e iteraciones:} Si el objetivo es encontrar \textit{una} salida lo más rápido posible, \textbf{Greedy First Search} demostró ser superior. Por ejemplo, en el Laberinto 3, Greedy (Euclidiana) solo exploró 610 nodos en 0.002260 segundos. Sin embargo, sacrificó la optimalidad (camino de 188 pasos frente a los 184 óptimos).
+    \item \textbf{Optimalidad garantizada:} Si es imperativo encontrar el camino más corto, \textbf{$A^*$} es la mejor opción. Mantiene la garantía matemática de optimalidad de BFS (ambos encontraron el camino mínimo de 316 pasos en el Laberinto 2), pero explorando significativamente menos nodos que BFS en laberintos estructurados, gracias a la guía de la heurística.
+    \item \textbf{DFS} resultó ser el menos práctico para espacios abiertos o laberintos con múltiples ramificaciones, generando caminos excesivamente largos e ineficientes (1398 pasos en el Laberinto 2).
+\end{itemize}
+
+\subsection{Interpretación de las métricas}
+Las métricas evidencian la relación directa entre la exploración del espacio de estados y el costo computacional. El tiempo de ejecución es proporcional a la cantidad de nodos explorados. Se observa que la heurística de Manhattan tiende a expandir menos nodos que la Euclidiana en entornos de cuadrícula plana ortogonal (ej. $A^*$ en el Laberinto 3 expandió 2050 nodos con Manhattan vs 2479 con Euclidiana), lo cual es congruente teóricamente ya que Manhattan es una mejor aproximación del costo real de movimiento en una matriz que no permite movimientos diagonales.
+
+\subsection{Soluciones óptimas}
+Sí, se encontraron soluciones óptimas. Como dictan los principios de la inteligencia artificial, tanto \textbf{BFS} (Búsqueda en Amplitud) como \textbf{$A^*$} (con una heurística admisible) garantizan teóricamente encontrar el camino de menor costo. Esto se validó empíricamente en los datos experimentales: en todos los casos de prueba, BFS y $A^*$ convergieron exactamente en la misma longitud mínima de solución (ej. 316 pasos para el Laberinto 2 y 184 pasos para el Laberinto 3), confirmando que se alcanzó la optimalidad geométrica del trazado.
+
+\section{Código Fuente}
+El código fuente de este proyecto puede ser consultado en el siguiente repositorio público: \\
+\url{https://github.com/rick-jmc/Proyecto-2-Inteligencia-Artificial}
+
+\end{document}
